@@ -35,6 +35,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -43,6 +44,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -189,7 +191,15 @@ public class ScriptBrowser {
       btnMenu.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          activity.openOptionsMenu();
+          PopupMenu popup = new PopupMenu(activity, v);
+          popup.getMenuInflater().inflate(R.menu.impl_menu, popup.getMenu());
+          popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+              return activity.onOptionsItemSelected(item);
+            }
+          });
+          popup.show();
         }
       });
     }
