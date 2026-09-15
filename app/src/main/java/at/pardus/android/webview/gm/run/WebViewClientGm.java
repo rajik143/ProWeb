@@ -282,4 +282,10 @@ public class WebViewClientGm extends WebViewClient {
     return emulateOnPageFinished;
   }
 
+  @Override
+  public boolean onRenderProcessGone(WebView view, android.webkit.RenderProcessGoneDetail detail) {
+    Log.w(TAG, "WebView render process gone: didCrash=" + (detail != null && detail.didCrash()));
+    return true;
+  }
+
 }
