@@ -1,0 +1,453 @@
+// -------------------------
+// Greasemonkey API (legacy)
+// -------------------------
+
+var GM_addElement = function() {
+  try {
+    var args = unsafeWindow.Array.prototype.slice.call(arguments);
+    var head_elements = ['title', 'base', 'link', 'style', 'meta', 'script', 'noscript'/*, 'template'*/];
+    var special_attr_keys = ['className', 'innerHTML', 'innerText', 'textContent'];
+    var parent_node, tag_name, attributes;
+    if (args.length === 1) {
+      tag_name = args[0];
+    }
+    else if (args.length === 2) {
+      tag_name = args[0];
+      attributes = args[1];
+    }
+    else {
+      parent_node = args[0];
+      tag_name = args[1];
+      attributes = args[2];
+    }
+    if (!tag_name || (typeof tag_name !== 'string')) {
+      throw new unsafeWindow.Error('missing tag name');
+    }
+    if (!attributes || (typeof attributes !== 'object')) {
+      attributes = {};
+    }
+    if (!parent_node || !(
+         (unsafeWindow.HTMLElement      && (parent_node instanceof unsafeWindow.HTMLElement))
+      || (unsafeWindow.DocumentFragment && (parent_node instanceof unsafeWindow.DocumentFragment))
+    )) {
+      parent_node = (head_elements.indexOf(tag_name.toLowerCase()) >= 0) ? document.head : document.body;
+    }
+    var element = document.createElement(tag_name);
+    var attr_keys = unsafeWindow.Object.keys(attributes);
+    var attr_key, attr_val;
+    for (var i=0; i < attr_keys.length; i++) {
+      attr_key = attr_keys[i];
+      attr_val = attributes[attr_key];
+      if (special_attr_keys.indexOf(attr_key) >= 0) {
+        element[attr_key] = attr_val;
+      }
+      else {
+        element.setAttribute(attr_key, attr_val);
+      }
+    }
+    parent_node.appendChild(element);
+    return element;
+  }
+  catch(e) {
+    return null;
+  }
+};
+
+var GM_addStyle = function(css) {
+  var head, style;
+  head = document.getElementsByTagName('head')[0];
+  if (head) {
+    style = document.createElement('style');
+    style.setAttribute('type', 'text/css');
+    style.textContent = css;
+    head.appendChild(style);
+    return style;
+  }
+  return null;
+};
+
+var _GM_getMenuCommand_menuId = function() {
+  return 'gm-registered-menu';
+};
+
+var _GM_addMenuCommand_menu = function(menu_container_id) {
+  var css = [
+    'body > ul#' + menu_container_id + '{',
+    '  display: block;',
+    '  position: sticky;',
+    '  z-index: 99999;',
+    '  top: 0px;',
+    '  width: 100%;',
+    '  margin: 0px;',
+    '  padding: 0px;',
+    '  border: 1px solid #e7e7e7;',
+    '  border-collapse: collapse;',
+    '  background-color: #f3f3f3;',
+    '  list-style-type: none;',
+    '}',
+    'body > ul#' + menu_container_id + ' > li {',
+    '  display: inline-block;',
+    '  color: #666666;',
+    '  border: 1px solid #e7e7e7;',
+    '  border-collapse: collapse;',
+    '  margin: 0px;',
+    '  padding: 1em;',
+    '  font-family: sans-serif;',
+    '  font-size: 14px;',
+    '  cursor: pointer;',
+    '}',
+    'body > ul#' + menu_container_id + ' > li:hover {',
+    '  background-color: #e3e3e3;',
+    '}'
+  ];
+
+  css = css.join("\n");
+  GM_addStyle(css);
+  css = null;
+
+  var menu = document.createElement('ul');
+  menu.setAttribute('id', menu_container_id);
+  menu.setAttribute('last-menu-command-index', '0');
+  if (document.body.childNodes.length) {
+    document.body.insertBefore(menu, document.body.childNodes[0]);
+  }
+  else {
+    document.body.appendChild(menu);
+  }
+  return menu;
+};
+
+var _GM_addMenuCommand_menuitem = function(menu, caption, commandFunc) {
+  var menutitle = caption.replace(/["]/g, '');
+  var menuitem  = menu.querySelector(':scope > [title="' + menutitle + '"]');
+  var menuCmdId;
+  if (menuitem) {
+    menuCmdId = menuItem.getAttribute('id');
+  }
+  else {
+    var next_menu_command_index = (parseInt(menu.getAttribute('last-menu-command-index'), 10) || 0) + 1;
+    menuCmdId = 'menu_command_id_' + next_menu_command_index;
+
+    menuItem = document.createElement('li');
+    menuItem.setAttribute('id', menuCmdId);
+    menuItem.setAttribute('title', menutitle);
+    menuItem.textContent = caption;
+    menuItem.addEventListener('click', commandFunc, true);
+
+    menu.appendChild(menuItem);
+    menu.setAttribute('last-menu-command-index', ('' + next_menu_command_index));
+  }
+  return menuCmdId;
+};
+
+var GM_registerMenuCommand = function(caption, commandFunc, accessKey) {
+  if (!document.body) {
+    if ((document.readyState === 'loading') && document.documentElement && (document.documentElement.localName === 'html') && unsafeWindow.Promise && unsafeWindow.MutationObserver) {
+      return new unsafeWindow.Promise(function(resolve, reject) {
+        new unsafeWindow.MutationObserver(function(mutations, observer) {
+          if (document.body) {
+            observer.disconnect();
+            resolve(
+              GM_registerMenuCommand(caption, commandFunc, accessKey)
+            );
+          }
+        }).observe(document.documentElement, {childList: true});
+      });
+    }
+    else {
+      return GM_notImplemented.bind(null, 'GM_registerMenuCommand');
+    }
+  }
+  var menu_container_id = _GM_getMenuCommand_menuId();
+  var menu = document.getElementById(menu_container_id);
+  if (!menu) {
+    menu = _GM_addMenuCommand_menu(menu_container_id);
+    _GM_addMenuCommand_menuitem(menu, 'Close', function() {
+      menu.style.display = 'none';
+    });
+  }
+  menu.style.display = 'block';
+  return _GM_addMenuCommand_menuitem(menu, caption, commandFunc);
+};
+
+var GM_unregisterMenuCommand = function(menuCmdId) {
+  var menu_container_id = _GM_getMenuCommand_menuId();
+  var menuItem = document.querySelector('body > #' + menu_container_id + ' > #' + menuCmdId);
+  if (menuItem) {
+    menuItem.parentNode.removeChild(menuItem);
+    return menuItem;
+  }
+  return null;
+};
+
+var GM_fetch = function(input, init) {
+  var request, theFinalBody;
+  return init || (typeof input == "string" ? init = {} : input = init.url), unsafeWindow.Request && unsafeWindow.Request.prototype && unsafeWindow.Request.prototype.isPrototypeOf && unsafeWindow.Request.prototype.isPrototypeOf(init) ? request = init : (init.body && (theFinalBody = init.body), request = new unsafeWindow.Request(input, init)), new unsafeWindow.Promise(function(resolve, reject) {
+    var xhr_details = {};
+    init && init.extra && (xhr_details = init.extra);
+    var _parsedRespHeaders;
+    function get_headers(responseHeaders) {
+      var head = new Headers();
+      if (typeof responseHeaders == "string") {
+        var pairs = responseHeaders.trim().split("\n");
+        pairs.forEach(function(header) {
+          var split = header.trim().split(":"), key2 = split.shift().trim(), value = split.join(":").trim();
+          head.append(key2, value);
+        });
+      } else if (typeof responseHeaders == "object")
+        for (var key in responseHeaders)
+          unsafeWindow.Array.isArray(responseHeaders[key]) && responseHeaders[key].forEach(function(value) {
+            head.append(key, value);
+          });
+      return head;
+    }
+    function get_response_url(finalUrl, respHeaders) {
+      if (finalUrl)
+        return finalUrl;
+      if (respHeaders.get("X-Request-URL"))
+        return respHeaders.get("X-Request-URL");
+    }
+    xhr_details.method = request.method || "GET";
+    xhr_details.timeout = 6e4;
+    request.timeout && (xhr_details.timeout = request.timeout);
+    xhr_details.url = request.url;
+    xhr_details.synchronous = !1;
+    xhr_details.onload = function(resp) {
+      var status = resp.status;
+      if (status < 100 || status > 599) {
+        reject(new unsafeWindow.Error("Network request failed"));
+        return;
+      }
+      var rawRespHeaders = resp.responseHeaders;
+      _parsedRespHeaders = get_headers(rawRespHeaders);
+      var finalUrl = get_response_url(
+        resp.finalUrl || resp.responseURL,
+        _parsedRespHeaders
+      );
+      _parsedRespHeaders.set("X-Final-URL", finalUrl);
+      var options = {
+        status: status,
+        statusText: resp.statusText,
+        headers: _parsedRespHeaders,
+        url: finalUrl
+      }, body = resp.responseText;
+      var finalResponse = new unsafeWindow.Response(body, options);
+      resolve(finalResponse);
+    };
+    xhr_details.onerror = function(err) {
+      unsafeWindow.console.error("fetch error", err), reject(new unsafeWindow.Error("Network request failed"));
+    };
+    xhr_details.ontimeout = function(err) {
+      unsafeWindow.console.error("fetch timeout", err), reject(new unsafeWindow.Error("Network request timeout"));
+    };
+    xhr_details.onabort = function(err) {
+      unsafeWindow.console.error("fetch abort", err), reject(new unsafeWindow.Error("Network request abort"));
+    };
+    xhr_details.headers = {}, request.headers.forEach(function(value, name) {
+      xhr_details.headers[name] = value;
+    });
+    theFinalBody && (xhr_details.data = theFinalBody);
+    GM_xmlhttpRequest(xhr_details);
+  });
+};
+
+// -------------------------
+// Helper functions for:
+//   CacheFileHelper
+// -------------------------
+
+var _GM_parseDataUri = function(url) {
+  if (!url)
+    return null;
+
+  if ((url instanceof ArrayBuffer) || (url instanceof Uint8Array))
+    return {
+      data: url,
+      byteLength: url.byteLength,
+      mimeType: null
+    };
+
+  if ((typeof url !== 'string') || (url.substring(0, 5).toLowerCase() !== 'data:'))
+    return null;
+
+  var index_start, index_end, mimeType, isBase64Encoding, base64;
+
+  // MIME-type
+  index_start = 5;
+  index_end   = url.indexOf(';', index_start);
+  if (index_end !== -1) {
+    mimeType = url.substring(index_start, index_end).trim();
+  }
+
+  // encoding
+  index_end = url.indexOf(',');
+  if (index_end !== -1) {
+    index_start = url.lastIndexOf(';', index_end);
+    if (index_start != -1) {
+      isBase64Encoding = url.substring(index_start + 1, index_end).trim().toLowerCase() === 'base64';
+    }
+  }
+
+  // data
+  if (index_end !== -1) {
+    base64 = url.substring(index_end + 1);
+
+    if (!isBase64Encoding) {
+      base64 = btoa(base64);
+    }
+  }
+
+  if (!base64)
+    return null;
+
+  return {
+    data: base64,
+    byteLength: _GM_base64LengthToBytes(base64.length),
+    mimeType
+  };
+}
+
+var _GM_base64LengthToBytes = function(base64Length) {
+  // each block of 4 characters represent 3 bytes
+  return Math.ceil(base64Length / 4) * 3;
+}
+
+var _GM_bytesToBase64Length = function(bytes) {
+  // each block of 3 bytes is represented by 4 characters
+  return Math.ceil(bytes / 3) * 4;
+}
+
+var _GM_base64ToText = function(base64) {
+  return atob(base64);
+}
+
+var _GM_base64ToJson = function(base64) {
+  return JSON.parse(
+    _GM_base64ToText(base64)
+  );
+}
+
+var _GM_base64ToArrayBuffer = function(base64) {
+  var binaryString = _GM_base64ToText(base64);
+  var bytes = new Uint8Array(binaryString.length);
+  for (var i=0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+var _GM_base64ToBlob = function(base64) {
+  return new Blob([
+    _GM_base64ToArrayBuffer(base64)
+  ]);
+}
+
+// -------------------------
+// Helper functions to format:
+//   GM_xmlhttpRequest(details).responseText
+// -------------------------
+
+var _GM_arrayBufferToText = function(arrayBuffer) {
+  var uint8 = new Uint8Array(arrayBuffer);
+  var textdecoder = new TextDecoder('utf-8');
+
+  return textdecoder.decode(uint8);
+}
+
+var _GM_arrayBufferToJson = function(arrayBuffer) {
+  return JSON.parse(
+    _GM_arrayBufferToText(arrayBuffer)
+  );
+}
+
+var _GM_arrayBufferToBase64 = function(arrayBuffer) {
+  var uint8  = new Uint8Array(arrayBuffer);
+  var length = uint8.byteLength;
+  var binary = [];
+
+  for (var i=0; i < length; i++) {
+    binary[i] = String.fromCharCode(uint8[i]);
+  }
+
+  return btoa(
+    binary.join('')
+  );
+}
+
+var _GM_arrayBufferToBlob = function(arrayBuffer) {
+  return new Blob([
+    arrayBuffer
+  ]);
+}
+
+var _GM_formatXmlHttpResponse = function(details, response) {
+  var arrayBuffer;
+  try {
+    if (!response || (typeof response !== 'object')) {
+      response = {};
+
+      throw new Error('Missing response object');
+    }
+    if ((typeof response.readyState === 'number') && (response.readyState < 4)) {
+      throw false;
+    }
+    if (!response.responseCacheUUID) {
+      throw new Error('Bad response object');
+    }
+    if (!details || (typeof details !== 'object')) {
+      throw new Error('Bad input parameter: details');
+    }
+
+    if (details.responseType === 'cache_uuid') {
+      response.response = response.responseCacheUUID;
+    }
+    else {
+      arrayBuffer = _GM_readFromCacheFile(response.responseCacheUUID, response.total);
+
+      if ((arrayBuffer == null) || !(arrayBuffer instanceof ArrayBuffer)) {
+        throw new Error('OutOfMemoryError: could not allocate ArrayBuffer to hold the entire file');
+      }
+
+      try {
+        switch(details.responseType || '') {
+          case 'arraybuffer':
+            response.response = arrayBuffer;
+            break;
+          case 'blob':
+            response.response = _GM_arrayBufferToBlob(arrayBuffer);
+            break;
+          case 'text_base64':
+            response.response = _GM_arrayBufferToBase64(arrayBuffer);
+            break;
+          case 'text_datauri':
+            response.response = 'data:' + (response.mimeType || 'application/octet-stream') + ';base64,' + _GM_arrayBufferToBase64(arrayBuffer);
+            break;
+          case 'json':
+            response.response = _GM_arrayBufferToJson(arrayBuffer);
+            break;
+          case 'text':
+          default:
+            response.responseText = _GM_arrayBufferToText(arrayBuffer);
+            break;
+        }
+      }
+      catch(e) {
+        throw new Error('OutOfMemoryError: could not convert from ArrayBuffer to the specified responseType [' + details.responseType + ']');
+      }
+    }
+  }
+  catch(error) {
+    if (error && (typeof error === 'object')) {
+      response.error = error;
+      response.error.responseCacheUUID = response.responseCacheUUID || null;
+    }
+  }
+  finally {
+    delete response.responseCacheUUID;
+
+    response.response     = response.response     || null;
+    response.responseText = response.responseText || '';
+  }
+
+  return response;
+}

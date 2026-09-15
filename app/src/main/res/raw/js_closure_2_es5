@@ -1,0 +1,5 @@
+  var window, self, globalThis;
+  window = self = globalThis = unsafeWindow;
+
+  var userscript_wrapper = function(){
+    with (window) {

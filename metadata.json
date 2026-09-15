@@ -1,0 +1,6 @@
+{
+  "name": "WebMonkey",
+  "description": "UserScript browser for Android to run custom scripts and ad blocking on websites",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

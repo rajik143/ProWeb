@@ -1,0 +1,165 @@
+  var _GM_getWindowProxyTarget = function(useWindowPrototype) {
+    var target = {};
+
+    if (useWindowPrototype)
+      target.__proto__ = unsafeWindow.Window.prototype;
+
+    return target;
+  };
+
+  var _GM_getWindowProxyHander = function(windowOwnProps, propBlacklist) {
+    if (!windowOwnProps || (typeof windowOwnProps !== 'object')) {
+      windowOwnProps = {};
+    }
+    if (!propBlacklist || !unsafeWindow.Array.isArray(propBlacklist) || !propBlacklist.length) {
+      propBlacklist = null;
+    }
+
+    var windowProxyHander = {
+
+      defineProperty(target, prop, descriptor) {
+        if (propBlacklist && propBlacklist.includes(prop)) {
+          return false;
+        }
+        unsafeWindow.Object.defineProperty(windowOwnProps, prop, descriptor);
+        return true;
+      },
+
+      deleteProperty(target, prop) {
+        if (prop in windowOwnProps) {
+          delete windowOwnProps[prop];
+          return true;
+        }
+        return false;
+      },
+
+      get(target, prop, receiver) {
+        if (propBlacklist && propBlacklist.includes(prop)) {
+          return undefined;
+        }
+        var value, thisArg;
+        if (prop in windowOwnProps) {
+          value = windowOwnProps[prop];
+          thisArg = windowOwnProps;
+        }
+        else {
+          value = unsafeWindow[prop];
+          thisArg = unsafeWindow;
+        }
+        if (typeof value === 'function') {
+          const newValue = value.bind(thisArg);
+          const newPropBlacklist = ['caller', 'callee', 'arguments'];
+          const newProps = Object.getOwnPropertyNames(value).filter(prop => !newPropBlacklist.includes(prop));
+          for (let prop of newProps) {
+            newValue[prop] = value[prop];
+          }
+          value = newValue;
+        }
+        return value;
+      },
+
+      getOwnPropertyDescriptor(target, prop) {
+        if (propBlacklist && propBlacklist.includes(prop)) {
+          return undefined;
+        }
+        if (prop in windowOwnProps) {
+          return unsafeWindow.Object.getOwnPropertyDescriptor(windowOwnProps, prop);
+        }
+        return unsafeWindow.Object.getOwnPropertyDescriptor(unsafeWindow, prop);
+      },
+
+      has(target, prop) {
+        if (propBlacklist && propBlacklist.includes(prop)) {
+          return false;
+        }
+        return (prop in windowOwnProps) || (prop in unsafeWindow);
+      },
+
+      ownKeys(target) {
+        var props = [
+          ...unsafeWindow.Object.keys(windowOwnProps),
+          ...unsafeWindow.Reflect.ownKeys(unsafeWindow)
+        ];
+
+        if (propBlacklist) {
+          props = props.filter(prop => !propBlacklist.includes(prop))
+        }
+
+        return props;
+      },
+
+      set(target, prop, value, receiver) {
+        if (propBlacklist && propBlacklist.includes(prop)) {
+          return false;
+        }
+        windowOwnProps[prop] = value;
+        return true;
+      },
+
+    };
+
+    return windowProxyHander;
+  };
+
+  var _GM_addApiToWindowProxy = function(windowProxy) {
+    _GM_addApiToObject(
+      windowProxy,
+      {
+        // ---------------------
+        // Greasemonkey API (v4)
+        // ---------------------
+        'GM': GM,
+
+        // -------------------------
+        // Greasemonkey API (legacy)
+        // -------------------------
+        'GM_addElement':                GM_addElement,
+        'GM_addStyle':                  GM_addStyle,
+        'GM_deleteValue':               GM_deleteValue,
+        'GM_fetch':                     GM_fetch,
+        'GM_getResourceText':           GM_getResourceText,
+        'GM_getResourceURL':            GM_getResourceURL,
+        'GM_getValue':                  GM_getValue,
+        'GM_info':                      GM_info,
+        'GM_listValues':                GM_listValues,
+        'GM_log':                       GM_log,
+        'GM_registerMenuCommand':       GM_registerMenuCommand,
+        'GM_setValue':                  GM_setValue,
+        'GM_unregisterMenuCommand':     GM_unregisterMenuCommand,
+        'GM_xmlhttpRequest':            GM_xmlhttpRequest,
+
+        // -----------------
+        // missing functions
+        // -----------------
+        'GM_addValueChangeListener':    GM_addValueChangeListener,
+        'GM_download':                  GM_download,
+        'GM_getTab':                    GM_getTab,
+        'GM_getTabs':                   GM_getTabs,
+        'GM_notification':              GM_notification,
+        'GM_openInTab':                 GM_openInTab,
+        'GM_removeValueChangeListener': GM_removeValueChangeListener,
+        'GM_saveTab':                   GM_saveTab,
+        'GM_setClipboard':              GM_setClipboard,
+        'GM_webRequest':                GM_webRequest
+      }
+    );
+  };
+
+  var window, self, globalThis;
+  if (useSandbox) {
+    window = self = globalThis = new unsafeWindow.Proxy(
+      _GM_getWindowProxyTarget(/* useWindowPrototype= */ true),
+      _GM_getWindowProxyHander(/* windowOwnProps= */ {}, /* propBlacklist= */ [/* 'localStorage', 'sessionStorage' */])
+    );
+    window.window = window.self = window.globalThis = window;
+    if (unsafeWindow.top === unsafeWindow) {
+      window.top = window;
+    }
+    _GM_addApiToWindowProxy(window);
+  }
+  else {
+    window = self = globalThis = unsafeWindow;
+  }
+
+  var userscript_wrapper = function(){
+    with (window) {

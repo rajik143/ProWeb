@@ -1,0 +1,285 @@
+/*
+ *    Copyright 2012 Werner Bayer
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package at.pardus.android.webview.gm.run;
+
+import com.github.warren_bank.webmonkey.R;
+import at.pardus.android.webview.gm.model.Script;
+import at.pardus.android.webview.gm.store.ScriptStore;
+import at.pardus.android.webview.gm.util.ResourceHelper;
+import at.pardus.android.webview.gm.util.ScriptJsCode;
+import at.pardus.android.webview.gm.util.ScriptJsTemplateHelper;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.text.TextUtils;
+import android.util.Log;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+/**
+ * A user script enabled WebViewClient to be used by WebViewGm.
+ */
+public class WebViewClientGm extends WebViewClient {
+
+  private static final String TAG = WebViewClientGm.class.getName();
+
+  private static final String EMULATE_ON_PAGE_FINISHED_JS_FUNCTION = "WebViewGM_ON_PAGE_FINISHED";
+
+  public static String EMULATE_ON_PAGE_FINISHED_CLOSURE_BEGIN         = "";
+  public static String EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATEND  = "";
+  public static String EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATIDLE = "";
+
+  protected static void initStaticResources(Context context) {
+    ScriptJsCode.initStaticResources(context);
+
+    if (TextUtils.isEmpty(EMULATE_ON_PAGE_FINISHED_CLOSURE_BEGIN)) {
+      try {
+        EMULATE_ON_PAGE_FINISHED_CLOSURE_BEGIN = ScriptJsTemplateHelper.replace(
+          ResourceHelper.getRawStringResource(context, R.raw.emulate_on_page_finished_closure_begin),
+          "{{EMULATE_ON_PAGE_FINISHED_JS_FUNCTION}}",
+          EMULATE_ON_PAGE_FINISHED_JS_FUNCTION
+        );
+      }
+      catch(Exception e) {}
+    }
+    if (TextUtils.isEmpty(EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATEND)) {
+      try {
+        EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATEND = ScriptJsTemplateHelper.replace(
+          ResourceHelper.getRawStringResource(context, R.raw.emulate_on_page_finished_closure_end_runatend),
+          "{{EMULATE_ON_PAGE_FINISHED_JS_FUNCTION}}",
+          EMULATE_ON_PAGE_FINISHED_JS_FUNCTION
+        );
+      }
+      catch(Exception e) {}
+    }
+    if (TextUtils.isEmpty(EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATIDLE)) {
+      try {
+        EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATIDLE = ScriptJsTemplateHelper.replace(
+          ResourceHelper.getRawStringResource(context, R.raw.emulate_on_page_finished_closure_end_runatidle),
+          "{{EMULATE_ON_PAGE_FINISHED_JS_FUNCTION}}",
+          EMULATE_ON_PAGE_FINISHED_JS_FUNCTION
+        );
+      }
+      catch(Exception e) {}
+    }
+  }
+
+  private ScriptStore  scriptStore;
+  private String       jsBridgeName;
+  private String       secret;
+  private ScriptJsCode scriptJsCode;
+
+  protected boolean emulateOnPageFinished;
+
+  /**
+   * Constructs a new WebViewClientGm with a ScriptStore.
+   * 
+   * @param scriptStore
+   *            the script database to query for scripts to run when a page
+   *            starts/finishes loading
+   * @param jsBridgeName
+   *            the variable name to access the webview GM functions from
+   *            javascript code
+   * @param secret
+   *            a random string that is added to calls of the GM API
+   */
+  public WebViewClientGm(ScriptStore scriptStore, String jsBridgeName, String secret) {
+    this.scriptStore  = scriptStore;
+    this.jsBridgeName = jsBridgeName;
+    this.secret       = secret;
+    this.scriptJsCode = new ScriptJsCode();
+
+    this.emulateOnPageFinished = false;
+  }
+
+  /**
+   * Runs user scripts enabled for a given URL.
+   * 
+   * Unless a script specifies unwrap it is executed inside an anonymous
+   * function to hide it from access from the loaded page. Calls to the global
+   * JavaScript bridge methods require a secret that is set inside of each
+   * user script's anonymous function.
+   * 
+   * @param view
+   *            the view to load scripts in
+   * @param url
+   *            the current address
+   * @param jsBeforeScript
+   *            JavaScript code to add between the GM API and the start of the
+   *            user script code (may be null)
+   * @param jsAfterScript
+   *            JavaScript code to add after the end of the user script code
+   *            (may be null)
+   * @param readyState
+   *            the current state of document page load
+   *            any of: ScriptMetadata.RUNATSTART, ScriptMetadata.RUNATEND, ScriptMetadata.RUNATIDLE
+   *            note: ScriptMetadata.RUNATEND and ScriptMetadata.RUNATIDLE are only differentiated when `emulateOnPageFinished`,
+   *                  otherwise both run after `onPageFinished`
+   */
+  protected void runMatchingScripts(WebView view, String url, String jsBeforeScript, String jsAfterScript, String readyState) {
+    if ((readyState == null) || !(readyState.equals(Script.RUNATSTART) || readyState.equals(Script.RUNATEND) || readyState.equals(Script.RUNATIDLE))) return;
+    if (!emulateOnPageFinished && readyState.equals(Script.RUNATIDLE)) return; // combine both when RUNATEND
+
+    String jsCode = null;
+    if (!emulateOnPageFinished && readyState.equals(Script.RUNATEND)) {
+      String[] readyStates = new String[] {Script.RUNATEND, Script.RUNATIDLE};
+      jsCode = getMatchingScripts(url, jsBeforeScript, jsAfterScript, readyStates);
+    }
+    else {
+      jsCode = getMatchingScripts(url, jsBeforeScript, jsAfterScript, readyState);
+    }
+
+    if (TextUtils.isEmpty(jsCode))
+      return;
+
+    if (emulateOnPageFinished) {
+      switch(readyState) {
+        case Script.RUNATEND :
+          jsCode = EMULATE_ON_PAGE_FINISHED_CLOSURE_BEGIN + jsCode + EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATEND;
+          break;
+        case Script.RUNATIDLE :
+          jsCode = EMULATE_ON_PAGE_FINISHED_CLOSURE_BEGIN + jsCode + EMULATE_ON_PAGE_FINISHED_CLOSURE_END_RUNATIDLE;
+          break;
+      }
+    }
+
+    if (Build.VERSION.SDK_INT >= 19)
+      view.evaluateJavascript(jsCode, null);
+    else
+      view.loadUrl("javascript:\n" + jsCode);
+  }
+
+  public String getMatchingScripts(String url, String jsBeforeScript, String jsAfterScript, String readyState) {
+    String[] readyStates = new String[] {readyState};
+
+    return getMatchingScripts(url, jsBeforeScript, jsAfterScript, readyStates);
+  }
+
+  public String getMatchingScripts(String url, String jsBeforeScript, String jsAfterScript, String[] readyStates) {
+    if (scriptStore == null) {
+      Log.w(TAG, "Property scriptStore is null - not running any scripts");
+      return null;
+    }
+    Script[] matchingScripts = scriptStore.get(url);
+    if (matchingScripts == null) {
+      return null;
+    }
+
+    StringBuilder sb = new StringBuilder(4 * 1024);
+    int length = 0;
+
+    for (Script script : matchingScripts) {
+      sb.append(
+        scriptJsCode.getJsCode(script, jsBeforeScript, jsAfterScript, jsBridgeName, secret, readyStates)
+      );
+
+      if (sb.length() > length) {
+        length = sb.length();
+        Log.i(TAG, "Running script \"" + script.toString() + "\" on " + url);
+      }
+    }
+
+    return sb.toString();
+  }
+
+  @Override
+  public void onPageStarted(WebView view, String url, Bitmap favicon) {
+    runMatchingScripts(view, url, null, null, Script.RUNATSTART);
+
+    if (emulateOnPageFinished) {
+      runMatchingScripts(view, url, null, null, Script.RUNATEND);
+      runMatchingScripts(view, url, null, null, Script.RUNATIDLE);
+    }
+  }
+
+  @Override
+  public void onPageFinished(WebView view, String url) {
+    if (!emulateOnPageFinished) {
+      runMatchingScripts(view, url, null, null, Script.RUNATEND);
+      runMatchingScripts(view, url, null, null, Script.RUNATIDLE);
+    }
+  }
+
+  /**
+   * @return the scriptStore
+   */
+  public ScriptStore getScriptStore() {
+    return scriptStore;
+  }
+
+  /**
+   * @param scriptStore
+   *            the scriptStore to set
+   */
+  public void setScriptStore(ScriptStore scriptStore) {
+    this.scriptStore = scriptStore;
+  }
+
+  /**
+   * @return the jsBridgeName
+   */
+  public String getJsBridgeName() {
+    return jsBridgeName;
+  }
+
+  /**
+   * @param jsBridgeName
+   *            the jsBridgeName to set
+   */
+  public void setJsBridgeName(String jsBridgeName) {
+    this.jsBridgeName = jsBridgeName;
+  }
+
+  /**
+   * @return the secret
+   */
+  public String getSecret() {
+    return secret;
+  }
+
+  /**
+   * @param secret
+   *            the secret to set
+   */
+  public void setSecret(String secret) {
+    this.secret = secret;
+  }
+
+  /**
+   * @return the scriptJsCode
+   */
+  public ScriptJsCode getScriptJsCode() {
+    return scriptJsCode;
+  }
+
+  /**
+   * @param scriptJsCode
+   *            the scriptJsCode to set
+   */
+  public void setScriptJsCode(ScriptJsCode scriptJsCode) {
+    this.scriptJsCode = scriptJsCode;
+  }
+
+  /**
+   * @return the emulateOnPageFinished
+   */
+  public boolean getEmulateOnPageFinished() {
+    return emulateOnPageFinished;
+  }
+
+}

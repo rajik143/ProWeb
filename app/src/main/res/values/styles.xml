@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.WebMonkey.DeepBlack" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/deep_black</item>
+        <item name="android:colorBackground">@color/deep_black</item>
+        <item name="android:statusBarColor">@color/deep_black</item>
+        <item name="android:navigationBarColor">@color/deep_black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        <item name="android:editTextColor">@color/text_primary</item>
+        <item name="android:colorAccent">@color/accent_blue</item>
+        <item name="android:colorControlNormal">@color/text_secondary</item>
+        <item name="android:colorControlActivated">@color/accent_blue</item>
+        <item name="android:colorControlHighlight">@color/ripple_dark</item>
+        <item name="android:popupMenuStyle">@style/WebMonkey.PopupMenu</item>
+    </style>
+
+    <style name="WebMonkey.PopupMenu" parent="@android:style/Widget.Material.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_menu_popup</item>
+    </style>
+
+</resources>

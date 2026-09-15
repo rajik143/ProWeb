@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/browserRootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/deep_black"
+    android:orientation="vertical">
+
+    <!-- Ultra-minimal modern sleek top bar -->
+    <LinearLayout
+        android:id="@+id/topBarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_dark"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="4dp">
+
+            <!-- Sleek Back Button -->
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_icon_button"
+                android:contentDescription="@string/browse"
+                android:padding="6dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_arrow_back" />
+
+            <!-- Compact Address Pill -->
+            <LinearLayout
+                android:id="@+id/addressPillContainer"
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_address_pill"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <ImageView
+                    android:id="@+id/iconSecurity"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_lock_outline" />
+
+                <EditText
+                    android:id="@+id/addressField"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="@string/address_field_hint"
+                    android:imeOptions="actionGo"
+                    android:importantForAutofill="no"
+                    android:inputType="textUri|textNoSuggestions"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="13sp" />
+
+                <ImageButton
+                    android:id="@+id/btnClearUrl"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/bg_icon_button"
+                    android:contentDescription="@null"
+                    android:padding="4dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_clear"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Sleek Reload Button -->
+            <ImageButton
+                android:id="@+id/btnReload"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_icon_button"
+                android:contentDescription="@string/reload"
+                android:padding="6dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_refresh" />
+
+            <!-- Sleek 3-Dot Menu Button -->
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="2dp"
+                android:background="@drawable/bg_icon_button"
+                android:contentDescription="@string/menu_settings"
+                android:padding="6dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_more_vert" />
+
+        </LinearLayout>
+
+        <!-- Ultra-thin 2dp sleek progress line -->
+        <ProgressBar
+            android:id="@+id/pageProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/bg_progress_bar"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Maximum Screen WebView with Deep Black Background -->
+    <at.pardus.android.webview.gm.run.WebViewGm
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/deep_black">
+
+        <requestFocus />
+    </at.pardus.android.webview.gm.run.WebViewGm>
+
+</LinearLayout>

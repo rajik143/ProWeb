@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deep Black OLED Palette -->
+    <color name="deep_black">#000000</color>
+    <color name="surface_dark">#08080A</color>
+    <color name="surface_card">#101014</color>
+    <color name="surface_pill">#15151A</color>
+    <color name="surface_pill_focused">#1A1A22</color>
+    <color name="border_subtle">#22222A</color>
+    <color name="border_focused">#383848</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#F4F4F6</color>
+    <color name="text_secondary">#8E8E98</color>
+    <color name="text_hint">#555560</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent_blue">#3B82F6</color>
+    <color name="accent_cyan">#06B6D4</color>
+    <color name="accent_emerald">#10B981</color>
+    
+    <!-- Ripple & Selection -->
+    <color name="ripple_dark">#282835</color>
+</resources>

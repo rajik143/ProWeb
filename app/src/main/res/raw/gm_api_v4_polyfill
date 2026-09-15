@@ -1,0 +1,134 @@
+// ---------------------------------------------
+// Greasemonkey API (polyfill for v4 and higher)
+// ---------------------------------------------
+
+var _GM_addApiToObject = function(target, entries) {
+  if (target && entries && (typeof target === 'object') && (typeof entries === 'object')) {
+    var keys = unsafeWindow.Object.keys(entries);
+    var key, val;
+    for (var i=0; i < keys.length; i++) {
+      key = keys[i];
+      val = entries[key];
+      target[key] = val;
+    }
+  }
+}
+
+var _GM_promisifyApiMethod_handler = function() {
+  var args, sync_method;
+  args = unsafeWindow.Array.prototype.slice.call(arguments);
+  if (args.length && (typeof args[0] === 'function')) {
+    sync_method = args.shift();
+  }
+  return new unsafeWindow.Promise(function(resolve, reject) {
+    try {
+      if (!sync_method) {
+        throw new unsafeWindow.Error('bad params to GM 4 polyfill');
+      }
+      resolve(sync_method.apply(null, args));
+    }
+    catch (e) {
+      reject(e);
+    }
+  });
+};
+
+// asynchronous, returns a Promise
+var _GM_promisifyApiMethod = function(api) {
+  return _GM_promisifyApiMethod_handler.bind(null, api);
+};
+
+var _GM_denodifyApiMethod_handler = function() {
+  var args, sync_method;
+  args = unsafeWindow.Array.prototype.slice.call(arguments);
+  if (args.length && (typeof args[0] === 'function')) {
+    sync_method = args.shift();
+  }
+  return new unsafeWindow.Promise(function(resolve, reject) {
+    try {
+      if (!sync_method) {
+        throw new unsafeWindow.Error('bad params to GM 4 polyfill');
+      }
+      var callback = function(result, error) {
+        if (error)
+          reject(error);
+        else
+          resolve(result);
+      }
+      args.push(callback);
+      sync_method.apply(null, args);
+    }
+    catch (e) {
+      reject(e);
+    }
+  });
+};
+
+// asynchronous, returns a Promise
+var _GM_denodifyApiMethod = function(api) {
+  return _GM_denodifyApiMethod_handler.bind(null, api);
+};
+
+var GM     = {};
+GM.cookie  = {};
+GM.cookies = GM.cookie;
+
+_GM_addApiToObject(
+  GM,
+  {
+    // -----------
+    // synchronous
+    // -----------
+    'fetch': GM_fetch,
+    'info':  GM_info,
+    'log':   GM_log,
+
+    // ------------
+    // asynchronous
+    // ------------
+    'addElement':                _GM_promisifyApiMethod(GM_addElement),
+    'addStyle':                  _GM_promisifyApiMethod(GM_addStyle),
+    'deleteValue':               _GM_promisifyApiMethod(GM_deleteValue),
+    'getResourceText':           _GM_promisifyApiMethod(GM_getResourceText),
+    'getResourceUrl':            _GM_promisifyApiMethod(GM_getResourceURL),
+    'getValue':                  _GM_promisifyApiMethod(GM_getValue),
+    'listValues':                _GM_promisifyApiMethod(GM_listValues),
+    'registerMenuCommand':       _GM_promisifyApiMethod(GM_registerMenuCommand),
+    'setValue':                  _GM_promisifyApiMethod(GM_setValue),
+    'unregisterMenuCommand':     _GM_promisifyApiMethod(GM_unregisterMenuCommand),
+    'xmlHttpRequest':            _GM_promisifyApiMethod(GM_xmlhttpRequest),
+
+  /*
+   * -----------------------------------------------
+   * implemented by "WebViewWM" JavascriptInterface
+   * -----------------------------------------------
+    'download':                  _GM_promisifyApiMethod(GM_download),
+   * -----------------------------------------------
+   */
+
+    // -----------------
+    // missing functions
+    // -----------------
+    'addValueChangeListener':    _GM_promisifyApiMethod(GM_addValueChangeListener),
+    'getTab':                    _GM_promisifyApiMethod(GM_getTab),
+    'getTabs':                   _GM_promisifyApiMethod(GM_getTabs),
+    'notification':              _GM_promisifyApiMethod(GM_notification),
+    'openInTab':                 _GM_promisifyApiMethod(GM_openInTab),
+    'removeValueChangeListener': _GM_promisifyApiMethod(GM_removeValueChangeListener),
+    'saveTab':                   _GM_promisifyApiMethod(GM_saveTab),
+    'setClipboard':              _GM_promisifyApiMethod(GM_setClipboard),
+    'webRequest':                _GM_promisifyApiMethod(GM_webRequest)
+  }
+);
+
+_GM_addApiToObject(
+  GM.cookie,
+  {
+    // ------------
+    // asynchronous
+    // ------------
+    'list':                      _GM_denodifyApiMethod(GM_cookie.list),
+    'set':                       _GM_denodifyApiMethod(GM_cookie.set),
+    'delete':                    _GM_denodifyApiMethod(GM_cookie.delete)
+  }
+);

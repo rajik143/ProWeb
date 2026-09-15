@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_browse"
+        android:title="@string/browse">
+    </item>
+    <item
+        android:id="@+id/menu_list"
+        android:title="@string/list_scripts">
+    </item>
+    <item
+        android:id="@+id/menu_update_scripts"
+        android:title="@string/menu_update_scripts">
+    </item>
+    <item
+        android:id="@+id/menu_toggle_dark_mode"
+        android:title="@string/toggle_dark_mode">
+    </item>
+    <item
+        android:id="@+id/menu_remove_cookies"
+        android:title="@string/menu_remove_cookies">
+    </item>
+    <item
+        android:id="@+id/menu_settings"
+        android:title="@string/menu_settings">
+    </item>
+    <item
+        android:id="@+id/menu_database_backup"
+        android:title="@string/menu_database_backup">
+    </item>
+    <item
+        android:id="@+id/menu_database_restore"
+        android:title="@string/menu_database_restore">
+    </item>
+    <item
+        android:id="@+id/menu_test_pattern"
+        android:title="@string/menu_test_pattern">
+    </item>
+    <item
+        android:id="@+id/menu_exit"
+        android:title="@string/menu_exit">
+    </item>
+
+</menu>

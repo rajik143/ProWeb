@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">WebMonkey</string>
+
+  <!-- menu/impl_menu -->
+  <string name="menu_update_scripts">Update Scripts</string>
+  <string name="menu_remove_cookies">Remove Cookies</string>
+  <string name="menu_settings">Settings</string>
+  <string name="menu_database_backup">Backup Database</string>
+  <string name="menu_database_restore">Restore Database</string>
+  <string name="menu_test_pattern">Test Pattern</string>
+  <string name="menu_exit">Exit</string>
+
+  <!-- Preferences -->
+  <string translatable="false" name="pref_lasturl">last_url</string>
+  <string translatable="false" name="pref_lastupdate">last_update_timestamp</string>
+
+  <!-- Settings -->
+  <string translatable="false" name="pref_settings_key">settings_key</string>
+  <string name="pref_settings_title">WebMonkey Settings</string>
+
+  <!-- Settings: Home Page -->
+  <string name="pref_homepage_array_names_1">Continue where you left off</string>
+  <string name="pref_homepage_array_names_2">Blank page</string>
+  <string name="pref_homepage_array_names_3">Userscripts by developer</string>
+  <string name="pref_homepage_array_names_4">Userscripts at Greasy Fork</string>
+  <string name="pref_homepage_array_names_5">Custom URL</string>
+
+  <string translatable="false" name="pref_homepage_array_values_1">@string/pref_lasturl</string>
+  <string translatable="false" name="pref_homepage_array_values_2">about:blank</string>
+  <string translatable="false" name="pref_homepage_array_values_3">https://warren-bank.github.io/Android-WebMonkey/index.html</string>
+  <string translatable="false" name="pref_homepage_array_values_4">https://greasyfork.org/</string>
+  <string translatable="false" name="pref_homepage_array_values_5">@string/pref_custom_homepage_key</string>
+
+  <string-array name="pref_homepage_array_names">
+    <item>@string/pref_homepage_array_names_1</item>
+    <item>@string/pref_homepage_array_names_2</item>
+    <item>@string/pref_homepage_array_names_3</item>
+    <item>@string/pref_homepage_array_names_4</item>
+    <item>@string/pref_homepage_array_names_5</item>
+  </string-array>
+
+  <string-array name="pref_homepage_array_values">
+    <item>@string/pref_homepage_array_values_1</item>
+    <item>@string/pref_homepage_array_values_2</item>
+    <item>@string/pref_homepage_array_values_3</item>
+    <item>@string/pref_homepage_array_values_4</item>
+    <item>@string/pref_homepage_array_values_5</item>
+  </string-array>
+
+  <!-- Settings: Home Page on Startup -->
+  <string translatable="false" name="pref_homepage_key">pref_homepage</string>
+  <string translatable="false" name="pref_homepage_default">@string/pref_homepage_array_values_1</string>
+  <string name="pref_homepage_title">On Startup</string>
+  <string name="pref_homepage_summary">choose home page..</string>
+
+  <!-- Settings: Custom URL Home Page on Startup -->
+  <string translatable="false" name="pref_custom_homepage_key">pref_custom_homepage</string>
+  <string translatable="false" name="pref_custom_homepage_default">@string/pref_homepage_array_values_2</string>
+  <string name="pref_custom_homepage_title">@string/pref_homepage_array_names_5</string>
+  <string name="pref_custom_homepage_summary">@string/pref_homepage_summary</string>
+
+  <!-- Settings: User Agent -->
+  <string translatable="false" name="pref_useragent_array_names_1">WebView</string>
+  <string translatable="false" name="pref_useragent_array_names_2">Chrome 120, Windows 10</string>
+  <string                      name="pref_useragent_array_names_3">Custom User Agent</string>
+
+  <string translatable="false" name="pref_useragent_array_values_1">@string/pref_useragent_array_names_1</string>
+  <string translatable="false" name="pref_useragent_array_values_2">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36</string>
+  <string translatable="false" name="pref_useragent_array_values_3">@string/pref_custom_useragent_key</string>
+
+  <string-array name="pref_useragent_array_names">
+    <item>@string/pref_useragent_array_names_1</item>
+    <item>@string/pref_useragent_array_names_2</item>
+    <item>@string/pref_useragent_array_names_3</item>
+  </string-array>
+
+  <string-array name="pref_useragent_array_values">
+    <item>@string/pref_useragent_array_values_1</item>
+    <item>@string/pref_useragent_array_values_2</item>
+    <item>@string/pref_useragent_array_values_3</item>
+  </string-array>
+
+  <!-- Settings: User Agent -->
+  <string translatable="false" name="pref_useragent_key">pref_useragent</string>
+  <string translatable="false" name="pref_useragent_default">@string/pref_useragent_array_values_1</string>
+  <string name="pref_useragent_title">User Agent</string>
+  <string name="pref_useragent_summary">choose request header value..</string>
+
+  <!-- Settings: Custom User Agent -->
+  <string translatable="false" name="pref_custom_useragent_key">pref_custom_useragent</string>
+  <string translatable="false" name="pref_custom_useragent_default">@string/pref_useragent_array_values_2</string>
+  <string name="pref_custom_useragent_title">@string/pref_useragent_array_names_3</string>
+  <string name="pref_custom_useragent_summary">@string/pref_useragent_summary</string>
+
+  <!-- Settings: @run-at document-end implementation options -->
+  <string translatable="false" name="pref_run_at_document_end_implementation_array_name_document_domcontentloaded">document: DOMContentLoaded</string>
+  <string translatable="false" name="pref_run_at_document_end_implementation_array_name_webviewclient_onpagefinished">WebViewClient: onPageFinished</string>
+
+  <string translatable="false" name="pref_run_at_document_end_implementation_array_value_document_domcontentloaded">document_domcontentloaded</string>
+  <string translatable="false" name="pref_run_at_document_end_implementation_array_value_webviewclient_onpagefinished">webviewclient_onpagefinished</string>
+
+  <string-array translatable="false" name="pref_run_at_document_end_implementation_array_names">
+    <item>@string/pref_run_at_document_end_implementation_array_name_document_domcontentloaded</item>
+    <item>@string/pref_run_at_document_end_implementation_array_name_webviewclient_onpagefinished</item>
+  </string-array>
+
+  <string-array translatable="false" name="pref_run_at_document_end_implementation_array_values">
+    <item>@string/pref_run_at_document_end_implementation_array_value_document_domcontentloaded</item>
+    <item>@string/pref_run_at_document_end_implementation_array_value_webviewclient_onpagefinished</item>
+  </string-array>
+
+  <!-- Settings: @run-at document-end implementation -->
+  <string translatable="false" name="pref_run_at_document_end_implementation_key">pref_run_at_document_end_implementation</string>
+  <string translatable="false" name="pref_run_at_document_end_implementation_default">@string/pref_run_at_document_end_implementation_array_value_document_domcontentloaded</string>
+  <string translatable="false" name="pref_run_at_document_end_implementation_title">\@run-at document-end</string>
+  <string name="pref_run_at_document_end_implementation_summary">choose implementation..</string>
+
+  <!-- Settings: Page Load Behavior -->
+  <string name="pref_pageloadbehavior_array_name_cancel">Cancel</string>
+  <string name="pref_pageloadbehavior_array_name_proceed">Proceed</string>
+  <string name="pref_pageloadbehavior_array_name_ask">Ask</string>
+
+  <string translatable="false" name="pref_pageloadbehavior_array_value_cancel">cancel</string>
+  <string translatable="false" name="pref_pageloadbehavior_array_value_proceed">proceed</string>
+  <string translatable="false" name="pref_pageloadbehavior_array_value_ask">ask</string>
+
+  <string-array name="pref_pageloadbehavior_array_names">
+    <item>@string/pref_pageloadbehavior_array_name_cancel</item>
+    <item>@string/pref_pageloadbehavior_array_name_proceed</item>
+    <item>@string/pref_pageloadbehavior_array_name_ask</item>
+  </string-array>
+
+  <string-array name="pref_pageloadbehavior_array_values">
+    <item>@string/pref_pageloadbehavior_array_value_cancel</item>
+    <item>@string/pref_pageloadbehavior_array_value_proceed</item>
+    <item>@string/pref_pageloadbehavior_array_value_ask</item>
+  </string-array>
+
+  <!-- Settings: Page Load Behavior on HTTPS Certificate Error -->
+  <string translatable="false" name="pref_badssl_pageloadbehavior_key">pref_badssl_pageloadbehavior</string>
+  <string translatable="false" name="pref_badssl_pageloadbehavior_default">@string/pref_pageloadbehavior_array_value_cancel</string>
+  <string name="pref_badssl_pageloadbehavior_title">On HTTPS Certificate Error</string>
+  <string name="pref_badssl_pageloadbehavior_summary">choose page load behavior..</string>
+
+  <!-- Settings: Script Update Interval -->
+  <string translatable="false" name="pref_updateinterval_key">pref_updateinterval</string>
+  <string translatable="false" name="pref_updateinterval_default">1</string>
+  <string name="pref_updateinterval_title">Script Update Interval</string>
+  <string name="pref_updateinterval_summary">days between checks..</string>
+
+  <!-- Settings: Shared Secret -->
+  <string translatable="false" name="pref_sharedsecret_key">pref_sharedsecret</string>
+  <string name="pref_sharedsecret_title">Shared Secret</string>
+  <string name="pref_sharedsecret_summary">1st parameter to API method: \"window.WebViewWM.getUserscriptJS(secret, url)\". Primarily intended for use by JS code injected by a \"mitmproxy\" script.. to allow userscripts to run in iframe windows.</string>
+
+  <!-- Settings: Enable Remote Debugger -->
+  <string translatable="false" name="pref_enableremotedebugger_key">pref_enableremotedebugger</string>
+  <string translatable="false" name="pref_enableremotedebugger_default">false</string>
+  <string name="pref_enableremotedebugger_title">Enable Remote Debugger</string>
+  <string name="pref_enableremotedebugger_summary_on" >WebView can be inspected on LAN</string>
+  <string name="pref_enableremotedebugger_summary_off">WebView cannot be inspected on LAN</string>
+
+  <!-- TestPatternActivity -->
+  <string name="testpatternactivity_title">@string/menu_test_pattern</string>
+  <string name="testpatternactivity_description">Pattern:\n  * supports: glob or regex\n  * used by: @include, @exclude, and @match\n\nURL:\n  * test subject\n\nRun Test:\n  * determine whether "Pattern" matches "URL"\n  * display result in Toast</string>
+  <string name="testpatternactivity_label_pattern">Pattern:</string>
+  <string name="testpatternactivity_label_url">URL:</string>
+  <string name="testpatternactivity_label_button">Run Test</string>
+  <string name="testpatternactivity_result_is_match">Success: Match</string>
+  <string name="testpatternactivity_result_no_match">Fail: No Match</string>
+
+  <!-- AlertDialog: Page Load Behavior on HTTPS Certificate Error -->
+  <string name="alertdialog_badssl_pageloadbehavior_title">HTTPS Certificate Error</string>
+  <string name="alertdialog_badssl_pageloadbehavior_reason_ssl_date_invalid">The date of the certificate is invalid.</string>
+  <string name="alertdialog_badssl_pageloadbehavior_reason_ssl_expired">The certificate has expired.</string>
+  <string name="alertdialog_badssl_pageloadbehavior_reason_ssl_idmismatch">Hostname mismatch.</string>
+  <string name="alertdialog_badssl_pageloadbehavior_reason_ssl_invalid">A generic error occurred.</string>
+  <string name="alertdialog_badssl_pageloadbehavior_reason_ssl_notyetvalid">The certificate is not yet valid.</string>
+  <string name="alertdialog_badssl_pageloadbehavior_reason_ssl_untrusted">The certificate authority is not trusted.</string>
+  <string name="alertdialog_badssl_pageloadbehavior_label_url">URL:</string>
+  <string name="alertdialog_badssl_pageloadbehavior_label_button_positive">@string/pref_pageloadbehavior_array_name_proceed</string>
+  <string name="alertdialog_badssl_pageloadbehavior_label_button_negative">@string/pref_pageloadbehavior_array_name_cancel</string>
+
+  <!-- AlertDialog: WmDownloadListener -->
+  <string name="alertdialog_downloadlistener_title">Download URL?</string>
+  <string name="alertdialog_downloadlistener_label_button_positive">Save File As..</string>
+  <string name="alertdialog_downloadlistener_label_button_negative">@string/pref_pageloadbehavior_array_name_cancel</string>
+
+  <!-- webview-gm-ui strings -->
+  <string name="added_new_script">Added new script</string>
+  <string name="browse">Browse</string>
+  <string name="delete">Delete</string>
+  <string name="deleted_script">Deleted script</string>
+  <string name="disable">Disable</string>
+  <string name="disabled">disabled</string>
+  <string name="disabled_script">Disabled script</string>
+  <string name="edit">Edit</string>
+  <string name="edited_script">Edited script</string>
+  <string name="enable">Enable</string>
+  <string name="enabled">enabled</string>
+  <string name="enabled_script">Enabled script</string>
+  <string name="error_downloading_from">Error downloading script from</string>
+  <string name="error_parsing_at">Error parsing script at</string>
+  <string name="error_saving_script">Error saving script</string>
+  <string name="error_while_loading">Error while loading</string>
+  <string name="list_scripts">List Scripts</string>
+  <string name="new_script_id_exists">New script name and namespace already exists</string>
+  <string name="save_script">Save Script</string>
+  <string name="starting_download_of">Starting download of</string>
+  <string name="syntax_or_dl_fail">Syntax error or dependency download failed</string>
+
+  <!-- Modern Minimal UI Strings -->
+  <string name="reload">Reload</string>
+  <string name="forward">Forward</string>
+  <string name="address_field_hint">Search or type URL…</string>
+  <string name="toggle_dark_mode">AMOLED Web Dark Mode</string>
+  <string name="toggle_fullscreen">Toggle Fullscreen</string>
+
+</resources>
